@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareerFlow — Job Application Tracker</title>
+  <meta name="description" content="CareerFlow is a premium job application tracker that helps you organize, monitor, and analyze every step of your job search in one elegant workspace." />
+
+  <!-- Google Fonts: Display + Body + Mono(data) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js" defer></script>
+
+  <link rel="stylesheet" href="style.css?v=4" />
+</head>
+<body>
+
+  <!-- ============================================ -->
+  <!-- TOAST NOTIFICATION CONTAINER                  -->
+  <!-- ============================================ -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- ============================================ -->
+  <!-- MOBILE SIDEBAR OVERLAY                        -->
+  <!-- ============================================ -->
+  <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+  <div class="app-shell">
+
+    <!-- ============================================ -->
+    <!-- SIDEBAR NAVIGATION                            -->
+    <!-- ============================================ -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path d="M4 18 L10 9 L14 14 L20 5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="20" cy="5" r="2.4" fill="currentColor"/>
+          </svg>
+        </span>
+        <div class="brand-text">
+          <span class="brand-name">CareerFlow</span>
+          <span class="brand-tagline">Application Workspace</span>
+        </div>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Primary">
+        <button class="nav-item is-active" data-view="dashboard">
+          <i data-lucide="layout-grid"></i><span>Dashboard</span>
+        </button>
+        <button class="nav-item" data-view="applications">
+          <i data-lucide="briefcase"></i><span>Applications</span>
+        </button>
+        <button class="nav-item" data-view="analytics">
+          <i data-lucide="bar-chart-3"></i><span>Analytics</span>
+        </button>
+        <button class="nav-item" data-view="calendar">
+          <i data-lucide="calendar-days"></i><span>Calendar</span>
+        </button>
+        <button class="nav-item" data-view="settings">
+          <i data-lucide="settings"></i><span>Settings</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-goal">
+        <div class="sidebar-goal-head">
+          <span>Weekly target</span>
+          <span id="sidebarGoalCount">0 / 5</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="sidebarGoalFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <button class="sidebar-theme-toggle" id="themeToggle" aria-pressed="false">
+        <i data-lucide="moon"></i>
+        <span>Dark mode</span>
+        <span class="toggle-switch" id="toggleSwitch"></span>
+      </button>
+    </aside>
+
+    <!-- ============================================ -->
+    <!-- MAIN CONTENT                                  -->
+    <!-- ============================================ -->
+    <div class="main-area">
+
+      <!-- TOP BAR -->
+      <header class="topbar">
+        <button class="icon-btn sidebar-toggle" id="sidebarToggle" aria-label="Open menu">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <div class="topbar-title">
+          <h1 id="viewTitle">Dashboard</h1>
+          <p id="viewSubtitle">A clear view of your job search, today.</p>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="search-field">
+            <i data-lucide="search"></i>
+            <input type="text" id="globalSearch" placeholder="Search company, role, or location…" autocomplete="off" />
+          </div>
+          <button class="btn btn-primary" id="addApplicationBtn">
+            <i data-lucide="plus"></i>
+            <span>New Application</span>
+          </button>
+          <div class="user-chip" id="settingsShortcut" title="Open settings">
+            <span class="user-avatar" id="userAvatar">A</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- ============================================ -->
+      <!-- VIEW: DASHBOARD                               -->
+      <!-- ============================================ -->
+      <section class="view" id="view-dashboard" data-view-panel>
+
+        <!-- Quote + Progress strip -->
+        <div class="hero-strip">
+          <div class="quote-card">
+            <i data-lucide="sparkles" class="quote-icon"></i>
+            <p id="motivationalQuote">"Every application is a step closer."</p>
+            <button class="quote-refresh" id="refreshQuote" aria-label="New quote">
+              <i data-lucide="refresh-cw"></i>
+            </button>
+          </div>
+
+          <div class="goal-card">
+            <div class="goal-row">
+              <div>
+                <span class="goal-label">Daily goal</span>
+                <span class="goal-value"><span id="dailyCount">0</span>/<span id="dailyTarget">2</span> applications</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="dailyFill" style="width:0%"></div>
+              </div>
+            </div>
+            <div class="goal-row">
+              <div>
+                <span class="goal-label">Weekly target</span>
+                <span class="goal-value"><span id="weeklyCount">0</span>/<span id="weeklyTarget">5</span> applications</span>
+              </div>
+              <div class="progress-track">
+                <div class="progress-fill" id="weeklyFill" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="stats-grid" id="statsGrid">
+          <!-- Injected by script.js: Total, Applied, Interview, Offers, Rejected, Success Rate -->
+        </div>
+
+        <div class="dashboard-columns">
+          <!-- Recent applications -->
+          <div class="panel panel-recent">
+            <div class="panel-head">
+              <h2>Recent Activity</h2>
+              <button class="link-btn" data-view-link="applications">View all <i data-lucide="arrow-right"></i></button>
+            </div>
+            <div id="recentList" class="recent-list"></div>
+          </div>
+
+          <!-- Upcoming -->
+          <div class="panel panel-upcoming">
+            <div class="panel-head">
+              <h2>Upcoming</h2>
+              <button class="link-btn" data-view-link="calendar">Calendar <i data-lucide="arrow-right"></i></button>
+            </div>
+            <div id="upcomingList" class="upcoming-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================ -->
+      <!-- VIEW: APPLICATIONS                            -->
+      <!-- ============================================ -->
+      <section class="view" id="view-applications" data-view-panel hidden>
+
+        <div class="toolbar">
+          <div class="toolbar-filters">
+            <div class="select-field">
+              <i data-lucide="building-2"></i>
+              <select id="filterCompany"><option value="">All companies</option></select>
+            </div>
+            <div class="select-field">
+              <i data-lucide="badge-check"></i>
+              <select id="filterStatus"><option value="">All statuses</option></select>
+            </div>
+            <div class="select-field">
+              <i data-lucide="map-pin"></i>
+              <select id="filterWorkType">
+                <option value="">All work types</option>
+                <option value="Remote">Remote</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="On-site">On-site</option>
+              </select>
+            </div>
+            <div class="select-field">
+              <i data-lucide="arrow-up-down"></i>
+              <select id="sortBy">
+                <option value="latest">Sort: Latest</option>
+                <option value="oldest">Sort: Oldest</option>
+                <option value="deadline">Sort: Deadline</option>
+              </select>
+            </div>
+            <button class="btn btn-ghost" id="clearFiltersBtn">
+              <i data-lucide="x-circle"></i><span>Clear</span>
+            </button>
+          </div>
+          <div class="toolbar-meta">
+            <span id="resultsCount">0 applications</span>
+            <div class="view-toggle">
+              <button class="view-toggle-btn is-active" id="gridViewBtn" aria-label="Grid view"><i data-lucide="layout-grid"></i></button>
+              <button class="view-toggle-btn" id="listViewBtn" aria-label="List view"><i data-lucide="list"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="status-chip-row" id="statusChipRow"></div>
+
+        <div id="applicationsGrid" class="applications-grid"></div>
+
+        <div id="applicationsEmpty" class="empty-state" hidden>
+          <div class="empty-illustration">
+            <i data-lucide="inbox"></i>
+          </div>
+          <h3>No applications yet</h3>
+          <p>Start tracking your job search — add your first application and watch your pipeline grow.</p>
+          <button class="btn btn-primary" id="emptyAddBtn">
+            <i data-lucide="plus"></i><span>Add your first application</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ============================================ -->
+      <!-- VIEW: ANALYTICS                               -->
+      <!-- ============================================ -->
+      <section class="view" id="view-analytics" data-view-panel hidden>
+
+        <div class="analytics-rate-grid" id="analyticsRateGrid"></div>
+
+        <div class="analytics-charts">
+          <div class="panel chart-panel">
+            <div class="panel-head">
+              <h2>Monthly Applications</h2>
+              <span class="panel-note">Last 6 months</span>
+            </div>
+            <div class="bar-chart" id="monthlyChart"></div>
+          </div>
+
+          <div class="panel chart-panel">
+            <div class="panel-head">
+              <h2>Status Breakdown</h2>
+              <span class="panel-note">All time</span>
+            </div>
+            <div class="donut-wrap">
+              <svg viewBox="0 0 120 120" class="donut-chart" id="donutChart"></svg>
+              <div class="donut-legend" id="donutLegend"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="analytics-funnel panel">
+          <div class="panel-head">
+            <h2>Application Funnel</h2>
+            <span class="panel-note">From applied to outcome</span>
+          </div>
+          <div class="funnel" id="funnelChart"></div>
+        </div>
+      </section>
+
+      <!-- ============================================ -->
+      <!-- VIEW: CALENDAR                                -->
+      <!-- ============================================ -->
+      <section class="view" id="view-calendar" data-view-panel hidden>
+        <div class="calendar-layout">
+          <div class="panel calendar-panel">
+            <div class="calendar-head">
+              <button class="icon-btn" id="calPrev" aria-label="Previous month"><i data-lucide="chevron-left"></i></button>
+              <h2 id="calendarMonthLabel">Month Year</h2>
+              <button class="icon-btn" id="calNext" aria-label="Next month"><i data-lucide="chevron-right"></i></button>
+              <button class="btn btn-ghost btn-sm" id="calTodayBtn">Today</button>
+            </div>
+            <div class="calendar-weekdays">
+              <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+
+          <div class="panel calendar-side">
+            <div class="panel-head">
+              <h2>Upcoming Interviews</h2>
+            </div>
+            <div id="calInterviews" class="reminder-list"></div>
+
+            <div class="panel-head">
+              <h2>Deadlines</h2>
+            </div>
+            <div id="calDeadlines" class="reminder-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================ -->
+      <!-- VIEW: SETTINGS                                -->
+      <!-- ============================================ -->
+      <section class="view" id="view-settings" data-view-panel hidden>
+        <div class="settings-grid">
+
+          <div class="panel settings-panel">
+            <div class="panel-head"><h2>Profile</h2></div>
+            <label class="field-label" for="displayNameInput">Display name</label>
+            <div class="inline-field">
+              <input type="text" id="displayNameInput" placeholder="Your name" maxlength="40" />
+              <button class="btn btn-primary btn-sm" id="saveNameBtn">Save</button>
+            </div>
+            <p class="field-hint">This name appears across your CareerFlow workspace.</p>
+          </div>
+
+          <div class="panel settings-panel">
+            <div class="panel-head"><h2>Appearance</h2></div>
+            <div class="settings-row">
+              <div>
+                <span class="settings-row-title">Dark mode</span>
+                <span class="settings-row-desc">Switch between light and dark workspace themes.</span>
+              </div>
+              <button class="toggle-switch-lg" id="settingsThemeToggle" aria-pressed="false"><span></span></button>
+            </div>
+          </div>
+
+          <div class="panel settings-panel">
+            <div class="panel-head"><h2>Productivity Goals</h2></div>
+            <label class="field-label" for="dailyGoalInput">Daily application goal</label>
+            <div class="inline-field">
+              <input type="number" id="dailyGoalInput" min="1" max="20" value="2" />
+            </div>
+            <label class="field-label" for="weeklyGoalInput">Weekly application goal</label>
+            <div class="inline-field">
+              <input type="number" id="weeklyGoalInput" min="1" max="50" value="5" />
+              <button class="btn btn-primary btn-sm" id="saveGoalsBtn">Save</button>
+            </div>
+          </div>
+
+          <div class="panel settings-panel settings-danger">
+            <div class="panel-head"><h2>Data Management</h2></div>
+            <div class="settings-row">
+              <div>
+                <span class="settings-row-title">Export data</span>
+                <span class="settings-row-desc">Download all applications as a JSON backup.</span>
+              </div>
+              <button class="btn btn-ghost btn-sm" id="exportDataBtn"><i data-lucide="download"></i><span>Export</span></button>
+            </div>
+            <div class="settings-row">
+              <div>
+                <span class="settings-row-title">Reset all data</span>
+                <span class="settings-row-desc">Permanently delete every application and reset your settings.</span>
+              </div>
+              <button class="btn btn-danger btn-sm" id="resetDataBtn"><i data-lucide="trash-2"></i><span>Reset</span></button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <p>Built with <span class="heart">❤</span> by Asma Umar</p>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- APPLICATION FORM MODAL (Add / Edit)           -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="formModalOverlay">
+    <div class="modal modal-form" role="dialog" aria-modal="true" aria-labelledby="formModalTitle">
+      <div class="modal-head">
+        <h2 id="formModalTitle">New Application</h2>
+        <button class="icon-btn" id="closeFormModal" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+
+      <form id="applicationForm" class="app-form">
+        <input type="hidden" id="appId" />
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="companyName">Company name *</label>
+            <input type="text" id="companyName" required placeholder="e.g. Nimbus Technologies" />
+          </div>
+          <div class="form-field">
+            <label for="jobTitle">Job title *</label>
+            <input type="text" id="jobTitle" required placeholder="e.g. Senior Product Designer" />
+          </div>
+
+          <div class="form-field">
+            <label for="location">Location</label>
+            <input type="text" id="location" placeholder="e.g. Lahore, Pakistan" />
+          </div>
+          <div class="form-field">
+            <label for="workType">Work type</label>
+            <select id="workType">
+              <option value="Remote">Remote</option>
+              <option value="Hybrid">Hybrid</option>
+              <option value="On-site">On-site</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="jobType">Job type</label>
+            <select id="jobType">
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Internship">Internship</option>
+              <option value="Contract">Contract</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="salaryRange">Salary range</label>
+            <input type="text" id="salaryRange" placeholder="e.g. PKR 150k – 200k" />
+          </div>
+
+          <div class="form-field">
+            <label for="status">Status</label>
+            <select id="status">
+              <option value="Wishlist">Wishlist</option>
+              <option value="Applied">Applied</option>
+              <option value="Under Review">Under Review</option>
+              <option value="Assessment">Assessment</option>
+              <option value="Interview Scheduled">Interview Scheduled</option>
+              <option value="Final Interview">Final Interview</option>
+              <option value="Offer Received">Offer Received</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+          <div class="form-field">
+            <label for="applicationDate">Application date</label>
+            <input type="date" id="applicationDate" />
+          </div>
+
+          <div class="form-field">
+            <label for="interviewDate">Interview date</label>
+            <input type="date" id="interviewDate" />
+          </div>
+          <div class="form-field">
+            <label for="deadline">Deadline</label>
+            <input type="date" id="deadline" />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="jobUrl">Job posting link <span class="optional-tag">optional</span></label>
+            <input type="url" id="jobUrl" placeholder="https://…" />
+          </div>
+
+          <div class="form-field form-field-full">
+            <label for="notes">Personal notes</label>
+            <textarea id="notes" rows="4" placeholder="Referral contacts, prep notes, interview impressions…"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="cancelFormBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="submitFormBtn">
+            <i data-lucide="check"></i><span>Save Application</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- APPLICATION DETAILS MODAL                     -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="detailsModalOverlay">
+    <div class="modal modal-details" role="dialog" aria-modal="true" aria-labelledby="detailsModalTitle">
+      <div class="modal-head">
+        <div>
+          <h2 id="detailsModalTitle">Company</h2>
+          <p id="detailsModalSubtitle">Job title</p>
+        </div>
+        <button class="icon-btn" id="closeDetailsModal" aria-label="Close"><i data-lucide="x"></i></button>
+      </div>
+      <div class="details-body" id="detailsBody"></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="detailsEditBtn"><i data-lucide="pencil"></i><span>Edit</span></button>
+        <button class="btn btn-ghost" id="detailsDuplicateBtn"><i data-lucide="copy"></i><span>Duplicate</span></button>
+        <button class="btn btn-danger" id="detailsDeleteBtn"><i data-lucide="trash-2"></i><span>Delete</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- CONFIRM DIALOG (Delete / Reset)               -->
+  <!-- ============================================ -->
+  <div class="modal-overlay" id="confirmOverlay">
+    <div class="modal modal-confirm" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="confirm-icon"><i data-lucide="alert-triangle"></i></div>
+      <h2 id="confirmTitle">Are you sure?</h2>
+      <p id="confirmMessage">This action cannot be undone.</p>
+      <div class="modal-actions modal-actions-center">
+        <button class="btn btn-ghost" id="confirmCancelBtn">Cancel</button>
+        <button class="btn btn-danger" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
